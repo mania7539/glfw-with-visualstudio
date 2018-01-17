@@ -30,8 +30,15 @@ int main(void)
 		-0.5f, -0.5f,
 		0.0f,  0.5f,
 		0.5f, -0.5f
-	}; // This is vertexes of our triangle
-
+	}; // This is vertex positions of our triangle
+	// But a "vetex" doesn't only contain position, it can contain more of that
+	// : a position is an attribute, a color is an attribute, a texture coordinate is an attribute
+	// : a normal is an attribute
+	// NOTE: VertexAttribPointer - Attribute is a part which you can deal with your self or managed by opengl by default
+	// : stride - Specifies the byte offset between consecutive generic vertex attributes.
+	//				(: it's the amount of bytes between each vertex, or the size of each vertex)
+	//				you'll get weird artifacts in your rendering or just black screen while you just get only 1 byte out of place
+	
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);				// Generate/Create a GL Buffer, we should provide an Integer as a memory which we can write into 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);	// How do I want to use the GL Buffer? Define it to a specific buffer:
@@ -44,6 +51,13 @@ int main(void)
 	// : STATIC, DYNAMIC: we should let GPU knows that if the buffer can be modified more than ONCE.
 	// : DRAW: we want to draw things with the buffer, so use it
 
+	glEnableVertexAttribArray(0);	// index: it's the index we want to enable attribute.
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2,  0);
+	// we need to tell opengl how we layout the data with - glVertexAttribPointer
+	// example: glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (const void*) 8);
+	// : normal: GL_FALSE - if we want them to be normalized
+	// : pass 4*2 = 8 as offset (in byte) to the texture coordinate - converts to a pointer with (const void*)
+	// IMPORTANT: we need to enable attribute feature with - glEnableVertexAttribArray
 
 	/*
 	* Loop until the user closes the window:
