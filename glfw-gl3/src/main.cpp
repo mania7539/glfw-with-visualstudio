@@ -106,6 +106,11 @@ int main(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
+	glfwSwapInterval(1); 
+	// above code:
+	// synchronize better with slower rate
+	// : interval - The minimum number of screen updates to wait for until the buffers are swapped by glfwSwapBuffers.
+
 	if (glewInit() != GLEW_OK) {
 		std::cout << "Error!" << std::endl;
 	};
@@ -181,7 +186,7 @@ int main(void)
 	unsigned int ibo;
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(float), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * 2 * sizeof(float), indices, GL_STATIC_DRAW);
 
 	ShaderProgramSources source = parseShader("res/shaders/basic.shader");
 	std::cout << "VERTEX: " << std::endl;
@@ -191,6 +196,17 @@ int main(void)
 	unsigned int shader = createShader(source.vertexSource, source.fragmentSource);
 	glUseProgram(shader);
 
+	int location = glGetUniformLocation(shader, "u_Color");
+	glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f);	
+	// above code:
+	// we want to pass vec4 and in float type so the name should contain "4" and "f"
+	// put the code below glUseProgram()
+	// NOTE: location == -1 then it means the glGetUniformLocation can't find the uniform
+
+
+
+	float r = 0.0f;
+	float increment = 0.05f;
 	/*
 	* Loop until the user closes the window:
 	* : This is like onDraw, so it will draw on each frame when updating,
@@ -209,14 +225,16 @@ int main(void)
 		// : count - the number of axis (x, y) of the array we want to draw
 		// NOTE: similar API - glDrawElements(GL_TRIANGLES, 3, UNSIGNED_INT, ...) used with index buffer
 
+		glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		// above code:
 		// : count - the number of indices we are drawing not vertexes
 		// : indices - since glBindBuffer already binded "ibo", we can pass "nullptr" (we don't have to put anything else in it)
 		// IMPORTANT: call glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr); (with GL_INT than GL_UNSIGNED_INT) will cause black screen and exception.
 
-
-
+		if (r > 1.0f) increment = -0.05f;
+		else if (r < 0.0f) increment = 0.05f;
+		r += increment;
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
